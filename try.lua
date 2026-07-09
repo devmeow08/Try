@@ -1,6 +1,6 @@
 --// VOIDWARE UI - FULL VERSION
 --// Optimized for Android / Touch Screen
---// Features: Movements Tab + Walk Speed Slider
+--// Updated Slider Style matching your example
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -25,8 +25,11 @@ MyUILib.Theme = {
     TabSelected = Color3.fromRGB(150, 60, 210),
     UserProfileBg = Color3.fromRGB(80, 28, 120),
     ScrollbarColor = Color3.fromRGB(180, 100, 220),
-    SliderBg = Color3.fromRGB(60, 20, 100),
-    SliderFill = Color3.fromRGB(200, 90, 255),
+    -- 🎨 Updated Slider Colors matching your example
+    SliderBg = Color3.fromRGB(85, 45, 115),
+    SliderFill = Color3.fromRGB(230, 160, 255),
+    SliderKnob = Color3.fromRGB(255, 255, 255),
+    SliderText = Color3.fromRGB(220, 220, 220),
     IconColor = Color3.new(1, 1, 1),
     IconTransparency = 0.2,
     TextColor = Color3.new(1, 1, 1),
@@ -233,10 +236,49 @@ function MyUILib:CreateWindow()
     })
     Instance.new("UICorner", Sidebar.Instance).CornerRadius = self.Theme.CornerRadius
 
-    -- ✅ SCROLL FRAME FOR TABS
+    -- ✅ SEARCH BAR
+    local SearchBox = Base.new("Frame", {
+        Size = UDim2.new(1, -12, 0, 36),
+        Position = UDim2.new(0, 6, 0, 6),
+        BackgroundColor3 = self.Theme.SearchBg,
+        BackgroundTransparency = 0.15,
+        Parent = Sidebar.Instance
+    })
+    Instance.new("UICorner", SearchBox.Instance).CornerRadius = UDim.new(0, 6)
+
+    local SearchIcon = Base.new("ImageLabel", {
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = UDim2.new(0, 8, 0.5, -8),
+        BackgroundTransparency = 1,
+        ImageColor3 = self.Theme.TextColor,
+        ImageTransparency = 0.3,
+        Parent = SearchBox.Instance
+    })
+    if Lucide and Lucide["48px"]["search"] then
+        SearchIcon.Instance.Image = "rbxassetid://" .. Lucide["48px"]["search"][1]
+        SearchIcon.Instance.ImageRectSize = Vector2.new(unpack(Lucide["48px"]["search"][2]))
+        SearchIcon.Instance.ImageRectOffset = Vector2.new(unpack(Lucide["48px"]["search"][3]))
+    end
+
+    local SearchInput = Base.new("TextBox", {
+        Size = UDim2.new(1, -32, 1, 0),
+        Position = UDim2.new(0, 32, 0, 0),
+        BackgroundTransparency = 1,
+        Text = "",
+        PlaceholderText = "Search tabs...",
+        PlaceholderColor3 = Color3.new(0.8, 0.8, 0.8),
+        Font = Enum.Font.Gotham,
+        TextSize = 14,
+        TextColor3 = self.Theme.TextColor,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ClearTextOnFocus = false,
+        Parent = SearchBox.Instance
+    })
+
+    -- ✅ SCROLL FRAME FOR TABS (REMAINS WITH SCROLLBAR)
     local SidebarScroll = Base.new("ScrollingFrame", {
-        Size = UDim2.new(1, 0, 1, -self.Theme.UserProfileHeight),
-        Position = UDim2.new(0, 0, 0, 0),
+        Size = UDim2.new(1, 0, 1, -48 - self.Theme.UserProfileHeight),
+        Position = UDim2.new(0, 0, 0, 48),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
         ScrollBarThickness = 6,
@@ -310,15 +352,15 @@ function MyUILib:CreateWindow()
         Parent = UserInfoContainer.Instance
     })
 
-    -- 📌 RIGHT CONTENT AREA
+    -- ✅ RIGHT CONTENT AREA (SCROLLBAR REMOVED, BUT STILL SCROLLABLE)
     local ContentScroll = Base.new("ScrollingFrame", {
         Size = UDim2.new(1, -self.Theme.SidebarWidth, 1, 0),
         Position = UDim2.new(0, self.Theme.SidebarWidth, 0, 0),
         BackgroundColor3 = self.Theme.ContentBg,
         BackgroundTransparency = 0.1,
         BorderSizePixel = 0,
-        ScrollBarThickness = 6,
-        ScrollBarImageColor3 = self.Theme.ScrollbarColor,
+        ScrollBarThickness = 0,
+        ScrollBarImageColor3 = Color3.new(0,0,0,0),
         VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right,
         CanvasSize = UDim2.new(1, 0, 0, 300),
         Parent = MainContainer.Instance
@@ -389,44 +431,53 @@ function MyUILib:CreateWindow()
                 BackgroundColor3 = self.Theme.TabSelected
             }):Play()
 
-            -- ✅ LAMAN NG MOVEMENTS TAB - WALK SPEED SLIDER
+            -- ✅ LAMAN NG MOVEMENTS TAB - UPDATED SLIDER STYLE
             ContentScroll.Instance:ClearAllChildren()
 
-            -- Title
-            Base.new("TextLabel", {
-                Text = "Walk Speed",
-                Font = Enum.Font.GothamBold,
-                TextSize = 20,
-                TextColor3 = self.Theme.TextColor,
+            -- 🎯 WALK SPEED SLIDER
+            -- Slider Container
+            local SliderContainer = Base.new("Frame", {
+                Size = UDim2.new(1, -20, 0, 44),
+                Position = UDim2.new(0, 10, 0, 20),
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, -20, 0, 30),
-                Position = UDim2.new(0, 10, 0, 15),
-                TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = ContentScroll.Instance
             })
 
-            -- Slider Value Display
-            local SpeedLabel = Base.new("TextLabel", {
-                Text = "16",
+            -- Label: Walk Speed
+            Base.new("TextLabel", {
+                Text = "Walk Speed",
                 Font = Enum.Font.GothamBold,
                 TextSize = 18,
                 TextColor3 = self.Theme.TextColor,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(0, 60, 0, 25),
-                Position = UDim2.new(1, -70, 0, 18),
-                TextXAlignment = Enum.TextXAlignment.Right,
-                Parent = ContentScroll.Instance
+                Size = UDim2.new(0, 120, 1, 0),
+                Position = UDim2.new(0, 0, 0, 0),
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = SliderContainer.Instance
             })
 
-            -- Slider Background
-            local SliderBg = Base.new("Frame", {
-                Size = UDim2.new(1, -30, 0, 14),
-                Position = UDim2.new(0, 15, 0, 60),
-                BackgroundColor3 = self.Theme.SliderBg,
-                BackgroundTransparency = 0.15,
-                Parent = ContentScroll.Instance
+            -- Value Text (nasa kanan)
+            local SpeedLabel = Base.new("TextLabel", {
+                Text = "16",
+                Font = Enum.Font.Gotham,
+                TextSize = 17,
+                TextColor3 = self.Theme.SliderText,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 50, 1, 0),
+                Position = UDim2.new(1, -160, 0, 0),
+                TextXAlignment = Enum.TextXAlignment.Right,
+                Parent = SliderContainer.Instance
             })
-            Instance.new("UICorner", SliderBg.Instance).CornerRadius = UDim.new(0, 7)
+
+            -- Slider Track
+            local SliderBg = Base.new("Frame", {
+                Size = UDim2.new(0, 140, 0, 6),
+                Position = UDim2.new(1, -145, 0.5, -3),
+                BackgroundColor3 = self.Theme.SliderBg,
+                BackgroundTransparency = 0.2,
+                Parent = SliderContainer.Instance
+            })
+            Instance.new("UICorner", SliderBg.Instance).CornerRadius = UDim.new(0, 3)
 
             -- Slider Fill
             local SliderFill = Base.new("Frame", {
@@ -436,18 +487,18 @@ function MyUILib:CreateWindow()
                 BackgroundTransparency = 0,
                 Parent = SliderBg.Instance
             })
-            Instance.new("UICorner", SliderFill.Instance).CornerRadius = UDim.new(0, 7)
+            Instance.new("UICorner", SliderFill.Instance).CornerRadius = UDim.new(0, 3)
 
-            -- Slider Knob
+            -- Slider Knob (puting bilog)
             local SliderKnob = Base.new("Frame", {
-                Size = UDim2.new(0, 20, 0, 20),
-                Position = UDim2.new(0, -10, 0.5, -10),
-                BackgroundColor3 = Color3.new(1,1,1),
+                Size = UDim2.new(0, 16, 0, 16),
+                Position = UDim2.new(0, -8, 0.5, -8),
+                BackgroundColor3 = self.Theme.SliderKnob,
                 BackgroundTransparency = 0,
                 ZIndex = 2,
                 Parent = SliderFill.Instance
             })
-            Instance.new("UICorner", SliderKnob.Instance).CornerRadius = UDim.new(0, 10)
+            Instance.new("UICorner", SliderKnob.Instance).CornerRadius = UDim.new(0, 8)
 
             -- Slider Settings
             local MinSpeed = 16
@@ -457,10 +508,10 @@ function MyUILib:CreateWindow()
 
             -- Update Function
             local function UpdateSpeed(newValue)
-                CurrentSpeed = math.clamp(newValue, MinSpeed, MaxSpeed)
+                CurrentSpeed = math.clamp(math.floor(newValue + 0.5), MinSpeed, MaxSpeed)
                 local percent = (CurrentSpeed - MinSpeed) / (MaxSpeed - MinSpeed)
                 SliderFill.Instance.Size = UDim2.new(percent, 0, 1, 0)
-                SpeedLabel.Instance.Text = tostring(math.floor(CurrentSpeed))
+                SpeedLabel.Instance.Text = tostring(CurrentSpeed)
                 if Humanoid and Humanoid:IsDescendantOf(game) then
                     Humanoid.WalkSpeed = CurrentSpeed
                 end
@@ -475,7 +526,7 @@ function MyUILib:CreateWindow()
                 end
             end)
 
-            -- Touch Input para sa Slider
+            -- Touch Input
             SliderBg.Instance.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
                     DraggingSlider = true
@@ -500,12 +551,32 @@ function MyUILib:CreateWindow()
                 end
             end)
 
-            -- Simulan sa default na bilis
+            -- Simulan sa default
             UpdateSpeed(16)
         end)
 
         table.insert(TabButtons, {Button = TabBtn.Instance, Name = tabData.Name})
     end
+
+    -- ✅ Search Bar Function
+    SearchInput.Instance:GetPropertyChangedSignal("Text"):Connect(function()
+        local searchText = SearchInput.Instance.Text:lower()
+        local offset = 0
+        local visibleCount = 0
+
+        for _, tab in ipairs(TabButtons) do
+            if tab.Name:lower():find(searchText) then
+                tab.Button.Visible = true
+                tab.Button.Position = UDim2.new(0, 6, 0, offset)
+                offset = offset + 42
+                visibleCount = visibleCount + 1
+            else
+                tab.Button.Visible = false
+            end
+        end
+
+        SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, visibleCount * 42)
+    end)
 
     -- ✅ Update scroll height
     SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, #Tabs * 42)
@@ -573,7 +644,7 @@ function MyUILib:CreateWindow()
         Window.Instance:Destroy()
     end)
 
-    -- 🖱️ DRAG LOGIC (Gumagana sa touch screen)
+    -- 🖱️ DRAG LOGIC
     local UIS = game:GetService("UserInputService")
     local Dragging = false
     local StartPos, StartInputPos
