@@ -1,6 +1,6 @@
 --// VOIDWARE UI - FULL VERSION
---// Optimized for Android / Touch Screen
---// Updated Slider Style matching your example
+--// With Fixed Container Layout
+--// Sidebar & Content stay aligned when resizing window
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -25,7 +25,6 @@ MyUILib.Theme = {
     TabSelected = Color3.fromRGB(150, 60, 210),
     UserProfileBg = Color3.fromRGB(80, 28, 120),
     ScrollbarColor = Color3.fromRGB(180, 100, 220),
-    -- 🎨 Updated Slider Colors matching your example
     SliderBg = Color3.fromRGB(85, 45, 115),
     SliderFill = Color3.fromRGB(230, 160, 255),
     SliderKnob = Color3.fromRGB(255, 255, 255),
@@ -43,12 +42,13 @@ MyUILib.Theme = {
     HeaderSubtitleTransparency = 0.35,
     HeaderIconSize = 25,
     CornerRadius = UDim.new(0, 10),
-    NormalWindowSize = UDim2.new(0, 650, 0, 450),
-    NormalWindowPos = UDim2.new(0.5, -325, 0.5, -225),
+    -- ✅ Pwede mong palitan ang laki ng window dito
+    NormalWindowSize = UDim2.new(0, 700, 0, 500), -- Mas malaki na halimbawa
+    NormalWindowPos = UDim2.new(0.5, -350, 0.5, -250),
     MinimizedBarSize = UDim2.new(0, 240, 0, 36),
     MinimizedBarPos = UDim2.new(0.5, -120, 0, 12),
     HeaderHeight = 36,
-    SidebarWidth = 160,
+    SidebarWidth = 160, -- ✅ Lapad ng sidebar, pwede ring palitan
     UserProfileHeight = 60,
     MinWindowWidth = 420,
     MinWindowHeight = 280,
@@ -218,9 +218,9 @@ function MyUILib:CreateWindow()
     local MaximizeBtn = CreateBtn("maximize", 32)
     local CloseBtn = CreateBtn("x", 64)
 
-    -- 📄 MAIN CONTAINER
-    local MainContainer = Base.new("Frame", {
-        Size = UDim2.new(1, 0, 1, -self.Theme.HeaderHeight),
+    -- ✅ MAIN CONTAINER - PANGUNAHING LALAGYAN
+    local MainContentContainer = Base.new("Frame", {
+        Size = UDim2.new(1, 0, 1, -self.Theme.HeaderHeight), -- Puno ang espasyo sa ibaba ng header
         Position = UDim2.new(0, 0, 0, self.Theme.HeaderHeight),
         BackgroundTransparency = 1,
         ClipsDescendants = true,
@@ -229,10 +229,10 @@ function MyUILib:CreateWindow()
 
     -- 📌 LEFT SIDEBAR
     local Sidebar = Base.new("Frame", {
-        Size = UDim2.new(0, self.Theme.SidebarWidth, 1, 0),
+        Size = UDim2.new(0, self.Theme.SidebarWidth, 1, 0), -- Nakapirming lapad
         BackgroundColor3 = self.Theme.SidebarBg,
         BackgroundTransparency = 0.1,
-        Parent = MainContainer.Instance
+        Parent = MainContentContainer.Instance
     })
     Instance.new("UICorner", Sidebar.Instance).CornerRadius = self.Theme.CornerRadius
 
@@ -275,7 +275,7 @@ function MyUILib:CreateWindow()
         Parent = SearchBox.Instance
     })
 
-    -- ✅ SCROLL FRAME FOR TABS (REMAINS WITH SCROLLBAR)
+    -- ✅ SCROLL FRAME FOR TABS
     local SidebarScroll = Base.new("ScrollingFrame", {
         Size = UDim2.new(1, 0, 1, -48 - self.Theme.UserProfileHeight),
         Position = UDim2.new(0, 0, 0, 48),
@@ -288,7 +288,7 @@ function MyUILib:CreateWindow()
     })
     SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-    -- ✅ AUTO USER PROFILE SECTION
+    -- ✅ USER PROFILE
     local UserProfile = Base.new("Frame", {
         Size = UDim2.new(1, 0, 0, self.Theme.UserProfileHeight),
         Position = UDim2.new(0, 0, 1, -self.Theme.UserProfileHeight),
@@ -298,7 +298,6 @@ function MyUILib:CreateWindow()
     })
     Instance.new("UICorner", UserProfile.Instance).CornerRadius = UDim.new(0, 6)
 
-    -- User Avatar
     local UserAvatar = Base.new("ImageLabel", {
         Size = UDim2.new(0, 40, 0, 40),
         Position = UDim2.new(0, 8, 0.5, -20),
@@ -308,7 +307,6 @@ function MyUILib:CreateWindow()
     })
     Instance.new("UICorner", UserAvatar.Instance).CornerRadius = UDim.new(0, 8)
 
-    -- Auto-load avatar thumbnail
     local thumbType = Enum.ThumbnailType.HeadShot
     local thumbSize = Enum.ThumbnailSize.Size420x420
     local success, avatarUrl = pcall(Players.GetUserThumbnailAsync, Players, LocalPlayer.UserId, thumbType, thumbSize)
@@ -318,7 +316,6 @@ function MyUILib:CreateWindow()
         UserAvatar.Instance.Image = "rbxassetid://6034220868"
     end
 
-    -- Username & Display Name
     local UserInfoContainer = Base.new("Frame", {
         Size = UDim2.new(1, -56, 1, 0),
         Position = UDim2.new(0, 52, 0, 0),
@@ -352,22 +349,22 @@ function MyUILib:CreateWindow()
         Parent = UserInfoContainer.Instance
     })
 
-    -- ✅ RIGHT CONTENT AREA (SCROLLBAR REMOVED, BUT STILL SCROLLABLE)
+    -- ✅ RIGHT CONTENT AREA - NAKADIKIT SA CONTAINER
     local ContentScroll = Base.new("ScrollingFrame", {
-        Size = UDim2.new(1, -self.Theme.SidebarWidth, 1, 0),
-        Position = UDim2.new(0, self.Theme.SidebarWidth, 0, 0),
+        Size = UDim2.new(1, -self.Theme.SidebarWidth, 1, 0), -- Kukunin ang natitirang espasyo
+        Position = UDim2.new(0, self.Theme.SidebarWidth, 0, 0), -- Nagsisimula sa dulo ng sidebar
         BackgroundColor3 = self.Theme.ContentBg,
         BackgroundTransparency = 0.1,
         BorderSizePixel = 0,
-        ScrollBarThickness = 0,
+        ScrollBarThickness = 0, -- Walang nakikitang scrollbar
         ScrollBarImageColor3 = Color3.new(0,0,0,0),
         VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right,
         CanvasSize = UDim2.new(1, 0, 0, 300),
-        Parent = MainContainer.Instance
+        Parent = MainContentContainer.Instance -- Nasa loob ng pangunahing container
     })
     Instance.new("UICorner", ContentScroll.Instance).CornerRadius = self.Theme.CornerRadius
 
-    -- 📋 TAB LIST - ISA LANG: MOVEMENTS
+    -- 📋 TAB LIST
     local Tabs = {
         {Name = "Movements", Icon = "shoe-print"}
     }
@@ -415,9 +412,8 @@ function MyUILib:CreateWindow()
             Parent = TabBtn.Instance
         })
 
-        -- ✅ PININDOT ANG TAB
+        -- ✅ TAB CLICK
         TabBtn.Instance.Activated:Connect(function()
-            -- Ibalik lahat sa normal
             for _, btn in ipairs(TabButtons) do
                 TweenService:Create(btn.Button, TweenInfo, {
                     BackgroundTransparency = 1,
@@ -425,17 +421,14 @@ function MyUILib:CreateWindow()
                 }):Play()
             end
 
-            -- Ilagay ang shade sa napiling tab
             TweenService:Create(TabBtn.Instance, TweenInfo, {
                 BackgroundTransparency = 0.6,
                 BackgroundColor3 = self.Theme.TabSelected
             }):Play()
 
-            -- ✅ LAMAN NG MOVEMENTS TAB - UPDATED SLIDER STYLE
+            -- ✅ WALK SPEED SLIDER
             ContentScroll.Instance:ClearAllChildren()
 
-            -- 🎯 WALK SPEED SLIDER
-            -- Slider Container
             local SliderContainer = Base.new("Frame", {
                 Size = UDim2.new(1, -20, 0, 44),
                 Position = UDim2.new(0, 10, 0, 20),
@@ -443,7 +436,6 @@ function MyUILib:CreateWindow()
                 Parent = ContentScroll.Instance
             })
 
-            -- Label: Walk Speed
             Base.new("TextLabel", {
                 Text = "Walk Speed",
                 Font = Enum.Font.GothamBold,
@@ -456,7 +448,6 @@ function MyUILib:CreateWindow()
                 Parent = SliderContainer.Instance
             })
 
-            -- Value Text (nasa kanan)
             local SpeedLabel = Base.new("TextLabel", {
                 Text = "16",
                 Font = Enum.Font.Gotham,
@@ -469,7 +460,6 @@ function MyUILib:CreateWindow()
                 Parent = SliderContainer.Instance
             })
 
-            -- Slider Track
             local SliderBg = Base.new("Frame", {
                 Size = UDim2.new(0, 140, 0, 6),
                 Position = UDim2.new(1, -145, 0.5, -3),
@@ -479,7 +469,6 @@ function MyUILib:CreateWindow()
             })
             Instance.new("UICorner", SliderBg.Instance).CornerRadius = UDim.new(0, 3)
 
-            -- Slider Fill
             local SliderFill = Base.new("Frame", {
                 Size = UDim2.new(0, 0, 1, 0),
                 Position = UDim2.new(0, 0, 0, 0),
@@ -489,7 +478,6 @@ function MyUILib:CreateWindow()
             })
             Instance.new("UICorner", SliderFill.Instance).CornerRadius = UDim.new(0, 3)
 
-            -- Slider Knob (puting bilog)
             local SliderKnob = Base.new("Frame", {
                 Size = UDim2.new(0, 16, 0, 16),
                 Position = UDim2.new(0, -8, 0.5, -8),
@@ -500,13 +488,11 @@ function MyUILib:CreateWindow()
             })
             Instance.new("UICorner", SliderKnob.Instance).CornerRadius = UDim.new(0, 8)
 
-            -- Slider Settings
             local MinSpeed = 16
             local MaxSpeed = 300
             local CurrentSpeed = 16
             local DraggingSlider = false
 
-            -- Update Function
             local function UpdateSpeed(newValue)
                 CurrentSpeed = math.clamp(math.floor(newValue + 0.5), MinSpeed, MaxSpeed)
                 local percent = (CurrentSpeed - MinSpeed) / (MaxSpeed - MinSpeed)
@@ -517,7 +503,6 @@ function MyUILib:CreateWindow()
                 end
             end
 
-            -- Auto update kapag nag-respawn ang character
             LocalPlayer.CharacterAdded:Connect(function(newChar)
                 Character = newChar
                 Humanoid = newChar:WaitForChild("Humanoid", 10)
@@ -526,7 +511,6 @@ function MyUILib:CreateWindow()
                 end
             end)
 
-            -- Touch Input
             SliderBg.Instance.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
                     DraggingSlider = true
@@ -551,14 +535,13 @@ function MyUILib:CreateWindow()
                 end
             end)
 
-            -- Simulan sa default
             UpdateSpeed(16)
         end)
 
         table.insert(TabButtons, {Button = TabBtn.Instance, Name = tabData.Name})
     end
 
-    -- ✅ Search Bar Function
+    -- ✅ Search Function
     SearchInput.Instance:GetPropertyChangedSignal("Text"):Connect(function()
         local searchText = SearchInput.Instance.Text:lower()
         local offset = 0
@@ -578,16 +561,14 @@ function MyUILib:CreateWindow()
         SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, visibleCount * 42)
     end)
 
-    -- ✅ Update scroll height
     SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, #Tabs * 42)
 
-    -- ✅ Unang tab ang naka-highlight sa simula
     if #TabButtons > 0 then
         TabButtons[1].Button.BackgroundTransparency = 0.6
         TabButtons[1].Button.BackgroundColor3 = self.Theme.TabSelected
     end
 
-    -- 📌 MINIMIZE / RESTORE
+    -- ✅ Minimize / Maximize Logic
     local IsMinimized = false
     local IsMaximized = false
 
@@ -600,7 +581,7 @@ function MyUILib:CreateWindow()
             }):Play()
 
             task.wait(self.Theme.TweenTime / 2)
-            MainContainer.Instance.Visible = false
+            MainContentContainer.Instance.Visible = false
             MinimizeBtn.Instance.Visible = false
             CloseBtn.Instance.Visible = false
             MaximizeBtn.Instance.Position = UDim2.new(1, -32, 0, 0)
@@ -610,7 +591,7 @@ function MyUILib:CreateWindow()
 
     MaximizeBtn.Instance.Activated:Connect(function()
         if IsMinimized then
-            MainContainer.Instance.Visible = true
+            MainContentContainer.Instance.Visible = true
             MinimizeBtn.Instance.Visible = true
             CloseBtn.Instance.Visible = true
             MaximizeBtn.Instance.Position = UDim2.new(0, 32, 0, 0)
@@ -644,7 +625,7 @@ function MyUILib:CreateWindow()
         Window.Instance:Destroy()
     end)
 
-    -- 🖱️ DRAG LOGIC
+    -- ✅ Drag Logic
     local UIS = game:GetService("UserInputService")
     local Dragging = false
     local StartPos, StartInputPos
@@ -679,7 +660,7 @@ function MyUILib:CreateWindow()
     return Window
 end
 
--- 🚀 INITIALIZE UI
+-- 🚀 INITIALIZE
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "VoidwareUI"
 ScreenGui.ResetOnSpawn = false
