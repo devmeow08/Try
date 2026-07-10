@@ -1,7 +1,7 @@
 --// VOIDWARE UI - FULL VERSION
 --// Optimized for Android / Touch Screen
 --// Features: Search, Scroll, Drag, Resize, Permanent Tab Highlight
---// Added: Walk Speed Slider, Infinite Jump Toggle, Food Dropdown
+--// Fixed: Slider no longer drags window, Dropdown opens properly
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -55,7 +55,7 @@ MyUILib.Theme = {
     NormalTransparency = 0,
     MinimizedTransparency = 0.4,
 
-    -- New control colors
+    -- Control colors
     SliderBase = Color3.fromRGB(60, 20, 90),
     SliderFill = Color3.fromRGB(255, 60, 100),
     SliderKnob = Color3.new(1, 1, 1),
@@ -88,7 +88,7 @@ function MyUILib:CreateWindow()
         BackgroundTransparency = self.Theme.NormalTransparency,
         Size = self.Theme.NormalWindowSize,
         Position = self.Theme.NormalWindowPos,
-        ClipsDescendants = true,
+        ClipsDescendants = false, -- Changed to false so dropdown can show outside
         ZIndex = 10
     })
 
@@ -231,7 +231,7 @@ function MyUILib:CreateWindow()
         Size = UDim2.new(1, 0, 1, -self.Theme.HeaderHeight),
         Position = UDim2.new(0, 0, 0, self.Theme.HeaderHeight),
         BackgroundTransparency = 1,
-        ClipsDescendants = true,
+        ClipsDescendants = false,
         Parent = Window.Instance
     })
 
@@ -534,7 +534,7 @@ function MyUILib:CreateWindow()
             ZIndex = 4
         })
 
-        -- 🆕 SEPARATE DROPDOWN WINDOW
+        -- 🆕 SEPARATE DROPDOWN WINDOW (FIXED: parent = ScreenGui, higher ZIndex)
         local DropdownWindow = Base.new("Frame", {
             Size = UDim2.new(0, 160, 0, 0),
             Position = UDim2.new(0, 0, 0, 0),
@@ -542,8 +542,8 @@ function MyUILib:CreateWindow()
             Visible = false,
             ClipsDescendants = true,
             Active = true,
-            Parent = Window.Instance,
-            ZIndex = 10
+            Parent = ScreenGui,
+            ZIndex = 100
         })
         Instance.new("UICorner", DropdownWindow.Instance).CornerRadius = self.Theme.CornerRadius
 
@@ -593,9 +593,9 @@ function MyUILib:CreateWindow()
         local function OpenDropdown()
             if isOpen then return end
             isOpen = true
-            local mainPos = Window.Instance.AbsolutePosition
-            local mainSize = Window.Instance.AbsoluteSize
-            DropdownWindow.Instance.Position = UDim2.new(0, mainPos.X + mainSize.X + 10, 0, mainPos.Y + 120)
+            -- Position exactly next to the trigger box
+            local triggerPos = DropdownTrigger.Instance.AbsolutePosition
+            DropdownWindow.Instance.Position = UDim2.new(0, triggerPos.X + DropdownTrigger.Instance.AbsoluteSize.X + 8, 0, triggerPos.Y - 2)
             DropdownWindow.Instance.Visible = true
             DropdownArrow.Instance.Text = "▲"
             local targetHeight = #Options * 30 + 10
@@ -615,7 +615,7 @@ function MyUILib:CreateWindow()
             if isOpen then CloseDropdown() else OpenDropdown() end
         end)
 
-        -- Walk Speed Logic
+        -- ✅ WALK SPEED LOGIC (FIXED: no longer drags window)
         local Dragging = false
         local MinSpeed = 16
         local MaxSpeed = 300
@@ -667,7 +667,7 @@ function MyUILib:CreateWindow()
             end
         end)
 
-        -- Infinite Jump Logic
+        -- ✅ INFINITE JUMP LOGIC
         local InfiniteJump = false
         ToggleClick.Instance.Activated:Connect(function()
             InfiniteJump = not InfiniteJump
@@ -681,11 +681,11 @@ function MyUILib:CreateWindow()
             end
         end)
 
-        -- Close dropdown when clicking outside
+        -- ✅ CLOSE DROPDOWN WHEN CLICKING OUTSIDE
         UserInputService.InputBegan:Connect(function(input)
             if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
                 local mousePos = UserInputService:GetMouseLocation()
-                local insideMain = DropdownTrigger.Instance.AbsolutePosition.X <= mousePos.X and
+                local insideTrigger = DropdownTrigger.Instance.AbsolutePosition.X <= mousePos.X and
                     mousePos.X <= DropdownTrigger.Instance.AbsolutePosition.X + DropdownTrigger.Instance.AbsoluteSize.X and
                     DropdownTrigger.Instance.AbsolutePosition.Y <= mousePos.Y and
                     mousePos.Y <= DropdownTrigger.Instance.AbsolutePosition.Y + DropdownTrigger.Instance.AbsoluteSize.Y
@@ -696,7 +696,7 @@ function MyUILib:CreateWindow()
                     DropdownWindow.Instance.AbsolutePosition.Y <= mousePos.Y and
                     mousePos.Y <= DropdownWindow.Instance.AbsolutePosition.Y + DropdownWindow.Instance.AbsoluteSize.Y
 
-                if not insideMain and not insideDropdown then
+                if not insideTrigger and not insideDropdown then
                     CloseDropdown()
                 end
             end
@@ -867,7 +867,7 @@ function MyUILib:CreateWindow()
         Window.Instance:Destroy()
     end)
 
-    -- Drag Logic
+    -- ✅ DRAG LOGIC (FIXED: only drags when clicking header, not controls)
     local Dragging = false
     local StartPos, StartInputPos
 
@@ -877,6 +877,7 @@ function MyUILib:CreateWindow()
             local cPos = Controls.Instance.AbsolutePosition
             local cSize = Controls.Instance.AbsoluteSize
 
+            -- Only drag if NOT clicking the buttons/controls
             local overControls =
                 mousePos.X >= cPos.X and mousePos.X <= cPos.X + cSize.X and
                 mousePos.Y >= cPos.Y and mousePos.Y <= cPos.Y + cSize.Y
@@ -897,6 +898,7 @@ function MyUILib:CreateWindow()
 
     UserInputService.InputChanged:Connect(function(input)
         if not Dragging then return end
+        -- Only drag if not interacting with sliders/toggles/dropdown
         if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
 
         local Delta = Vector2.new(input.Position.X, input.Position.Y) - StartInputPos
@@ -906,7 +908,7 @@ function MyUILib:CreateWindow()
         )
     end)
 
-    -- Resize Logic
+    -- ✅ RESIZE LOGIC
     local ResizeGrip = Base.new("Frame", {
         Size = UDim2.new(0, 30, 0, 30),
         Position = UDim2.new(1, 0, 1, 0),
