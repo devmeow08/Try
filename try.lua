@@ -1,6 +1,6 @@
---// VOIDWARE UI - FULL VERSION WITH SLIDER
+--// VOIDWARE UI - FULL VERSION WITH WORKING SLIDERS
+--// Fixed: Sliders now appear correctly in tabs
 --// Optimized for Android / Touch Screen
---// Features: Search, Scroll, Drag, Resize, Tabs, Sliders, Minimize/Maximize/Close
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -349,15 +349,20 @@ function MyUILib:CreateWindow()
     })
 
     -- 📌 RIGHT CONTENT AREA
-    local ContentScroll = Base.new("Frame", {
+    local ContentScroll = Base.new("ScrollingFrame", { -- ✅ Changed to ScrollingFrame so content doesn't get cut
         Size = UDim2.new(1, -self.Theme.SidebarWidth, 1, 0),
         Position = UDim2.new(0, self.Theme.SidebarWidth, 0, 0),
         BackgroundColor3 = self.Theme.ContentBg,
         BackgroundTransparency = 0.1,
         BorderSizePixel = 0,
+        ScrollBarThickness = 4,
+        ScrollBarImageColor3 = self.Theme.ScrollbarColor,
+        VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right,
+        ClipsDescendants = true,
         Parent = MainContainer.Instance
     })
     Instance.new("UICorner", ContentScroll.Instance).CornerRadius = self.Theme.CornerRadius
+    ContentScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, 0)
 
     -- ✅ SLIDER FUNCTION
     function Window:AddSlider(parent, config)
@@ -369,13 +374,17 @@ function MyUILib:CreateWindow()
         local Callback = config.Callback or function() end
         local Step = config.Step or 1
 
+        local offset = parent:GetAttribute("SliderOffset") or 10
         local SliderContainer = Base.new("Frame", {
             Size = UDim2.new(1, -20, 0, 60),
-            Position = UDim2.new(0, 10, 0, parent:GetAttribute("SliderOffset") or 10),
+            Position = UDim2.new(0, 10, 0, offset),
             BackgroundTransparency = 1,
             Parent = parent
         })
-        parent:SetAttribute("SliderOffset", (parent:GetAttribute("SliderOffset") or 10) + 70)
+        parent:SetAttribute("SliderOffset", offset + 70)
+
+        -- Update scroll height
+        parent.CanvasSize = UDim2.new(0, 0, 0, offset + 70)
 
         local Label = Base.new("TextLabel", {
             Text = Name .. " : " .. Default,
@@ -530,8 +539,9 @@ function MyUILib:CreateWindow()
             CurrentTab = tabData.Name
             ContentScroll.Instance:ClearAllChildren()
             ContentScroll.Instance:SetAttribute("SliderOffset", 10)
+            ContentScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, 0)
 
-            -- Example content with sliders
+            -- ✅ Content for Main tab with working sliders
             if CurrentTab == "Main" then
                 Base.new("TextLabel", {
                     Text = "Adjust Your Settings",
