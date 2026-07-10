@@ -1,6 +1,6 @@
---// VOIDWARE UI - FULL VERSION WITH WORKING SLIDERS
---// Fixed: Sliders now appear correctly in tabs
---// Optimized for Android / Touch Screen
+--// VOIDWARE UI - CUSTOM VERSION
+--// Only 1 Tab: Movements + Sliders inside
+--// Matches your purple theme
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -9,51 +9,35 @@ local LocalPlayer = Players.LocalPlayer
 local MyUILib = {}
 MyUILib.__index = MyUILib
 
--- 🧩 Load Lucide Icons
+-- Load Icons
 local Lucide = nil
 pcall(function()
     Lucide = loadstring(game:HttpGet("https://raw.githubusercontent.com/latte-soft/lucide-roblox/refs/heads/master/lib/Icons.luau"))()
 end)
 
--- 🎨 THEME SETTINGS
+-- 🎨 THEME
 MyUILib.Theme = {
     WindowBg = Color3.fromRGB(216, 128, 255),
     SidebarBg = Color3.fromRGB(90, 30, 130),
     ContentBg = Color3.fromRGB(110, 40, 150),
     SearchBg = Color3.fromRGB(70, 25, 110),
+    TabNormal = Color3.fromRGB(90, 30, 130),
     TabSelected = Color3.fromRGB(150, 60, 210),
     UserProfileBg = Color3.fromRGB(80, 28, 120),
     ScrollbarColor = Color3.fromRGB(180, 100, 220),
     SliderTrack = Color3.fromRGB(60, 20, 90),
     SliderFill = Color3.fromRGB(200, 120, 255),
-    SliderKnob = Color3.fromRGB(255, 255, 255),
-    IconColor = Color3.new(1, 1, 1),
-    IconTransparency = 0.2,
-    TextColor = Color3.new(1, 1, 1),
-    HeaderIcon = "user-round",
+    SliderKnob = Color3.new(1,1,1),
+    IconColor = Color3.new(1,1,1),
+    TextColor = Color3.new(1,1,1),
     HeaderTitle = "Voidware",
     HeaderSubtitle = "discord.gg/voidware",
-    HeaderFont = Enum.Font.GothamBold,
-    HeaderTextSize = 15,
-    HeaderSubtitleSize = 11,
-    HeaderTextTransparency = 0.2,
-    HeaderSubtitleTransparency = 0.35,
-    HeaderIconSize = 25,
     CornerRadius = UDim.new(0, 10),
     NormalWindowSize = UDim2.new(0, 450, 0, 530),
     NormalWindowPos = UDim2.new(0.5, -225, 0.5, -265),
-    MinimizedBarSize = UDim2.new(0, 200, 0, 33),
-    MinimizedBarPos = UDim2.new(0.5, -120, 0, 12),
     HeaderHeight = 36,
     SidebarWidth = 160,
-    UserProfileHeight = 60,
-    MinWindowWidth = 420,
-    MinWindowHeight = 280,
-    TweenTime = 0.22,
-    TweenStyle = Enum.EasingStyle.Quad,
-    TweenDirection = Enum.EasingDirection.Out,
-    NormalTransparency = 0,
-    MinimizedTransparency = 0.4
+    UserProfileHeight = 60
 }
 
 -- 🧱 BASE CLASS
@@ -74,18 +58,13 @@ end
 function MyUILib:CreateWindow()
     local Window = Base.new("Frame", {
         BackgroundColor3 = self.Theme.WindowBg,
-        BackgroundTransparency = self.Theme.NormalTransparency,
+        BackgroundTransparency = 0,
         Size = self.Theme.NormalWindowSize,
         Position = self.Theme.NormalWindowPos,
         ClipsDescendants = true,
         ZIndex = 10
     })
-
     Instance.new("UICorner", Window.Instance).CornerRadius = self.Theme.CornerRadius
-    local Border = Instance.new("UIStroke", Window.Instance)
-    Border.Color = Color3.new(0, 0, 0)
-    Border.Transparency = 0.8
-    Border.Thickness = 1
 
     -- 📌 HEADER / DRAG AREA
     local DragArea = Base.new("Frame", {
@@ -94,126 +73,55 @@ function MyUILib:CreateWindow()
         Parent = Window.Instance
     })
 
-    -- 📝 HEADER CONTENT
-    local HeaderContainer = Base.new("Frame", {
-        Size = UDim2.new(0, 260, 1, 0),
-        Position = UDim2.new(0, 12, 0, 0),
-        BackgroundTransparency = 1,
-        Parent = DragArea.Instance
-    })
-
-    -- 🖼️ HEADER ICON
-    local HeaderIcon = Base.new("ImageLabel", {
-        Size = UDim2.new(0, self.Theme.HeaderIconSize, 0, self.Theme.HeaderIconSize),
-        Position = UDim2.new(0, 0, 0.5, -self.Theme.HeaderIconSize/2),
-        BackgroundTransparency = 1,
-        ImageColor3 = self.Theme.IconColor,
-        ImageTransparency = self.Theme.IconTransparency,
-        Parent = HeaderContainer.Instance
-    })
-
-    if Lucide and Lucide["48px"][self.Theme.HeaderIcon] then
-        HeaderIcon.Instance.Image = "rbxassetid://" .. Lucide["48px"][self.Theme.HeaderIcon][1]
-        HeaderIcon.Instance.ImageRectSize = Vector2.new(unpack(Lucide["48px"][self.Theme.HeaderIcon][2]))
-        HeaderIcon.Instance.ImageRectOffset = Vector2.new(unpack(Lucide["48px"][self.Theme.HeaderIcon][3]))
-    else
-        Base.new("TextLabel", {
-            Text = "●",
-            Font = Enum.Font.GothamBold,
-            TextSize = 22,
-            TextColor3 = self.Theme.IconColor,
-            TextTransparency = self.Theme.IconTransparency,
-            Size = UDim2.new(1,0,1,0),
-            BackgroundTransparency = 1,
-            Parent = HeaderIcon.Instance
-        })
-    end
-
-    -- 📄 TITLE + SUBTITLE
-    local TextContainer = Base.new("Frame", {
-        Size = UDim2.new(0, 220, 1, 0),
-        Position = UDim2.new(0, self.Theme.HeaderIconSize + 10, 0, 4),
-        BackgroundTransparency = 1,
-        Parent = HeaderContainer.Instance
-    })
-
     Base.new("TextLabel", {
         Text = self.Theme.HeaderTitle,
-        Font = self.Theme.HeaderFont,
-        TextSize = self.Theme.HeaderTextSize,
+        Font = Enum.Font.GothamBold,
+        TextSize = 15,
         TextColor3 = self.Theme.TextColor,
-        TextTransparency = self.Theme.HeaderTextTransparency,
-        Size = UDim2.new(1, 0, 0, 16),
-        Position = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0, 12, 0, 4),
+        Size = UDim2.new(0, 120, 0, 20),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = TextContainer.Instance
+        Parent = DragArea.Instance
     })
 
     Base.new("TextLabel", {
         Text = self.Theme.HeaderSubtitle,
         Font = Enum.Font.Gotham,
-        TextSize = self.Theme.HeaderSubtitleSize,
+        TextSize = 11,
         TextColor3 = self.Theme.TextColor,
-        TextTransparency = self.Theme.HeaderSubtitleTransparency,
-        Size = UDim2.new(1, 0, 0, 12),
-        Position = UDim2.new(0, 0, 0, 16),
+        TextTransparency = 0.35,
+        Position = UDim2.new(0, 12, 0, 22),
+        Size = UDim2.new(0, 160, 0, 14),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = TextContainer.Instance
+        Parent = DragArea.Instance
     })
 
-    -- 🎛️ CONTROL BUTTONS
+    -- Control Buttons
     local Controls = Base.new("Frame", {
-        Size = UDim2.new(0, 88, 0, 28),
-        Position = UDim2.new(1, -96, 0, 4),
+        Size = UDim2.new(0, 80, 0, 28),
+        Position = UDim2.new(1, -88, 0, 4),
         BackgroundTransparency = 1,
         Parent = DragArea.Instance
     })
 
-    local function CreateBtn(iconName, posX, parent)
-        local Btn = Base.new("TextButton", {
-            Text = "",
-            Size = UDim2.new(0, 28, 0, 28),
-            Position = UDim2.new(0, posX, 0, 0),
+    local function MakeBtn(text, pos)
+        local btn = Base.new("TextButton", {
+            Text = text,
+            Size = UDim2.new(0, 24, 0, 24),
+            Position = UDim2.new(0, pos, 0, 0),
             BackgroundTransparency = 1,
-            AutoButtonColor = false,
-            Parent = parent or Controls.Instance
+            Font = Enum.Font.GothamBold,
+            TextColor3 = self.Theme.TextColor,
+            Parent = Controls.Instance
         })
-
-        local Icon = Base.new("ImageLabel", {
-            Size = UDim2.new(0, 14, 0, 14),
-            Position = UDim2.new(0.5, -7, 0.5, -7),
-            BackgroundTransparency = 1,
-            ImageColor3 = self.Theme.IconColor,
-            ImageTransparency = self.Theme.IconTransparency,
-            Parent = Btn.Instance
-        })
-
-        if Lucide and Lucide["48px"][iconName] then
-            Icon.Instance.Image = "rbxassetid://" .. Lucide["48px"][iconName][1]
-            Icon.Instance.ImageRectSize = Vector2.new(unpack(Lucide["48px"][iconName][2]))
-            Icon.Instance.ImageRectOffset = Vector2.new(unpack(Lucide["48px"][iconName][3]))
-        else
-            local fallback = { minus = "—", maximize = "⛶", x = "✕" }
-            Base.new("TextLabel", {
-                Text = fallback[iconName] or "?",
-                Font = Enum.Font.GothamBold,
-                TextSize = 16,
-                TextColor3 = self.Theme.IconColor,
-                TextTransparency = self.Theme.IconTransparency,
-                Size = UDim2.new(1,0,1,0),
-                BackgroundTransparency = 1,
-                Parent = Icon.Instance
-            })
-        end
-
-        return Btn
+        return btn
     end
 
-    local MinimizeBtn = CreateBtn("minus", 0)
-    local MaximizeBtn = CreateBtn("maximize", 32)
-    local CloseBtn = CreateBtn("x", 64)
+    local MinBtn = MakeBtn("—", 0)
+    local MaxBtn = MakeBtn("⛶", 28)
+    local CloseBtn = MakeBtn("✕", 56)
 
     -- 📄 MAIN CONTAINER
     local MainContainer = Base.new("Frame", {
@@ -233,7 +141,7 @@ function MyUILib:CreateWindow()
     })
     Instance.new("UICorner", Sidebar.Instance).CornerRadius = self.Theme.CornerRadius
 
-    -- ✅ SEARCH BAR
+    -- Search Bar
     local SearchBox = Base.new("Frame", {
         Size = UDim2.new(1, -12, 0, 36),
         Position = UDim2.new(0, 6, 0, 6),
@@ -241,51 +149,32 @@ function MyUILib:CreateWindow()
         BackgroundTransparency = 0.15,
         Parent = Sidebar.Instance
     })
-    Instance.new("UICorner", SearchBox.Instance).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", SearchBox.Instance).CornerRadius = UDim.new(0,6)
 
-    local SearchIcon = Base.new("ImageLabel", {
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(0, 8, 0.5, -8),
+    Base.new("TextBox", {
+        Size = UDim2.new(1, -20, 1, 0),
+        Position = UDim2.new(0, 20, 0, 0),
         BackgroundTransparency = 1,
-        ImageColor3 = self.Theme.TextColor,
-        ImageTransparency = 0.3,
-        Parent = SearchBox.Instance
-    })
-    if Lucide and Lucide["48px"]["search"] then
-        SearchIcon.Instance.Image = "rbxassetid://" .. Lucide["48px"]["search"][1]
-        SearchIcon.Instance.ImageRectSize = Vector2.new(unpack(Lucide["48px"]["search"][2]))
-        SearchIcon.Instance.ImageRectOffset = Vector2.new(unpack(Lucide["48px"]["search"][3]))
-    end
-
-    local SearchInput = Base.new("TextBox", {
-        Size = UDim2.new(1, -32, 1, 0),
-        Position = UDim2.new(0, 32, 0, 0),
-        BackgroundTransparency = 1,
-        Text = "",
         PlaceholderText = "Search tabs...",
-        PlaceholderColor3 = Color3.new(0.8, 0.8, 0.8),
+        TextColor3 = self.Theme.TextColor,
+        PlaceholderColor3 = Color3.new(0.7,0.7,0.7),
         Font = Enum.Font.Gotham,
         TextSize = 14,
-        TextColor3 = self.Theme.TextColor,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ClearTextOnFocus = false,
         Parent = SearchBox.Instance
     })
 
-    -- ✅ SCROLL FRAME FOR TABS
+    -- Sidebar Scroll
     local SidebarScroll = Base.new("ScrollingFrame", {
         Size = UDim2.new(1, 0, 1, -48 - self.Theme.UserProfileHeight),
         Position = UDim2.new(0, 0, 0, 48),
         BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        ScrollBarThickness = 6,
+        ScrollBarThickness = 4,
         ScrollBarImageColor3 = self.Theme.ScrollbarColor,
-        VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right,
         Parent = Sidebar.Instance
     })
-    SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, 0)
+    SidebarScroll.Instance.CanvasSize = UDim2.new(0,0,0,50)
 
-    -- ✅ AUTO USER PROFILE SECTION
+    -- User Profile
     local UserProfile = Base.new("Frame", {
         Size = UDim2.new(1, 0, 0, self.Theme.UserProfileHeight),
         Position = UDim2.new(0, 0, 1, -self.Theme.UserProfileHeight),
@@ -293,484 +182,253 @@ function MyUILib:CreateWindow()
         BackgroundTransparency = 0.1,
         Parent = Sidebar.Instance
     })
-    Instance.new("UICorner", UserProfile.Instance).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", UserProfile.Instance).CornerRadius = UDim.new(0,6)
 
-    -- User Avatar
-    local UserAvatar = Base.new("ImageLabel", {
-        Size = UDim2.new(0, 40, 0, 40),
-        Position = UDim2.new(0, 8, 0.5, -20),
-        BackgroundTransparency = 0,
+    Base.new("ImageLabel", {
+        Size = UDim2.new(0,40,0,40),
+        Position = UDim2.new(0,8,0.5,-20),
         BackgroundColor3 = Color3.new(0,0,0),
+        Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420),
         Parent = UserProfile.Instance
     })
-    Instance.new("UICorner", UserAvatar.Instance).CornerRadius = UDim.new(0, 8)
-
-    local thumbType = Enum.ThumbnailType.HeadShot
-    local thumbSize = Enum.ThumbnailSize.Size420x420
-    local success, avatarUrl = pcall(Players.GetUserThumbnailAsync, Players, LocalPlayer.UserId, thumbType, thumbSize)
-    if success then
-        UserAvatar.Instance.Image = avatarUrl
-    else
-        UserAvatar.Instance.Image = "rbxassetid://6034220868"
-    end
-
-    -- Username & Display Name
-    local UserInfoContainer = Base.new("Frame", {
-        Size = UDim2.new(1, -56, 1, 0),
-        Position = UDim2.new(0, 52, 0, 0),
-        BackgroundTransparency = 1,
-        Parent = UserProfile.Instance
-    })
+    Instance.new("UICorner", UserProfile.Instance.ImageLabel).CornerRadius = UDim.new(0,8)
 
     Base.new("TextLabel", {
-        Text = LocalPlayer.DisplayName or LocalPlayer.Name,
+        Text = LocalPlayer.DisplayName,
         Font = Enum.Font.GothamBold,
-        TextSize = 15,
+        TextSize = 14,
         TextColor3 = self.Theme.TextColor,
-        TextTransparency = 0.15,
-        Size = UDim2.new(1, 0, 0, 20),
-        Position = UDim2.new(0, 0, 0, 8),
+        Position = UDim2.new(0,56,0,8),
+        Size = UDim2.new(0,100,0,18),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = UserInfoContainer.Instance
+        Parent = UserProfile.Instance
     })
 
     Base.new("TextLabel", {
-        Text = "@" .. LocalPlayer.Name,
+        Text = "@"..LocalPlayer.Name,
         Font = Enum.Font.Gotham,
-        TextSize = 12,
+        TextSize = 11,
         TextColor3 = self.Theme.TextColor,
         TextTransparency = 0.35,
-        Size = UDim2.new(1, 0, 0, 16),
-        Position = UDim2.new(0, 0, 0, 28),
+        Position = UDim2.new(0,56,0,26),
+        Size = UDim2.new(0,100,0,16),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = UserInfoContainer.Instance
+        Parent = UserProfile.Instance
     })
 
-    -- 📌 RIGHT CONTENT AREA
-    local ContentScroll = Base.new("ScrollingFrame", { -- ✅ Changed to ScrollingFrame so content doesn't get cut
+    -- 📌 RIGHT CONTENT AREA (ScrollingFrame)
+    local ContentScroll = Base.new("ScrollingFrame", {
         Size = UDim2.new(1, -self.Theme.SidebarWidth, 1, 0),
         Position = UDim2.new(0, self.Theme.SidebarWidth, 0, 0),
         BackgroundColor3 = self.Theme.ContentBg,
         BackgroundTransparency = 0.1,
-        BorderSizePixel = 0,
         ScrollBarThickness = 4,
         ScrollBarImageColor3 = self.Theme.ScrollbarColor,
-        VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right,
         ClipsDescendants = true,
         Parent = MainContainer.Instance
     })
     Instance.new("UICorner", ContentScroll.Instance).CornerRadius = self.Theme.CornerRadius
-    ContentScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ContentScroll.Instance.CanvasSize = UDim2.new(0,0,0,0)
 
     -- ✅ SLIDER FUNCTION
-    function Window:AddSlider(parent, config)
+    function Window:AddSlider(config)
         config = config or {}
         local Name = config.Name or "Slider"
         local Min = config.Min or 0
         local Max = config.Max or 100
         local Default = math.clamp(config.Default or Min, Min, Max)
-        local Callback = config.Callback or function() end
         local Step = config.Step or 1
+        local Callback = config.Callback or function() end
 
-        local offset = parent:GetAttribute("SliderOffset") or 10
+        local offset = ContentScroll.Instance:GetAttribute("SliderOffset") or 10
+        ContentScroll.Instance:SetAttribute("SliderOffset", offset + 70)
+
         local SliderContainer = Base.new("Frame", {
             Size = UDim2.new(1, -20, 0, 60),
             Position = UDim2.new(0, 10, 0, offset),
             BackgroundTransparency = 1,
-            Parent = parent
+            Parent = ContentScroll.Instance
         })
-        parent:SetAttribute("SliderOffset", offset + 70)
 
-        -- Update scroll height
-        parent.CanvasSize = UDim2.new(0, 0, 0, offset + 70)
+        ContentScroll.Instance.CanvasSize = UDim2.new(0,0,0, offset + 70)
 
         local Label = Base.new("TextLabel", {
             Text = Name .. " : " .. Default,
             Font = Enum.Font.GothamSemibold,
             TextSize = 14,
             TextColor3 = self.Theme.TextColor,
-            Size = UDim2.new(1, 0, 0, 20),
-            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(1,0,0,20),
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Left,
             Parent = SliderContainer.Instance
         })
 
         local Track = Base.new("Frame", {
-            Size = UDim2.new(1, 0, 0, 6),
-            Position = UDim2.new(0, 0, 0, 30),
+            Size = UDim2.new(1,0,0,6),
+            Position = UDim2.new(0,0,0,30),
             BackgroundColor3 = self.Theme.SliderTrack,
-            BorderSizePixel = 0,
             Parent = SliderContainer.Instance
         })
-        Instance.new("UICorner", Track.Instance).CornerRadius = UDim.new(0, 3)
+        Instance.new("UICorner", Track.Instance).CornerRadius = UDim.new(0,3)
 
         local Fill = Base.new("Frame", {
-            Size = UDim2.new((Default - Min) / (Max - Min), 0, 1, 0),
+            Size = UDim2.new((Default-Min)/(Max-Min),0,1,0),
             BackgroundColor3 = self.Theme.SliderFill,
-            BorderSizePixel = 0,
             Parent = Track.Instance
         })
-        Instance.new("UICorner", Fill.Instance).CornerRadius = UDim.new(0, 3)
+        Instance.new("UICorner", Fill.Instance).CornerRadius = UDim.new(0,3)
 
         local Knob = Base.new("Frame", {
-            Size = UDim2.new(0, 16, 0, 16),
-            Position = UDim2.new((Default - Min) / (Max - Min), -8, 0.5, -8),
+            Size = UDim2.new(0,16,0,16),
+            Position = UDim2.new((Default-Min)/(Max-Min), -8, 0.5, -8),
             BackgroundColor3 = self.Theme.SliderKnob,
-            BorderSizePixel = 0,
             ZIndex = 2,
             Parent = Track.Instance
         })
-        Instance.new("UICorner", Knob.Instance).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", Knob.Instance).CornerRadius = UDim.new(0,8)
 
         local Dragging = false
         local function UpdateSlider(x)
             local relX = math.clamp(x / Track.Instance.AbsoluteSize.X, 0, 1)
-            local value = Min + math.floor((relX * (Max - Min)) / Step + 0.5) * Step
-            value = math.clamp(value, Min, Max)
-            relX = (value - Min) / (Max - Min)
-
-            Fill.Instance.Size = UDim2.new(relX, 0, 1, 0)
+            local val = Min + math.floor((relX*(Max-Min))/Step + 0.5)*Step
+            val = math.clamp(val, Min, Max)
+            relX = (val-Min)/(Max-Min)
+            Fill.Instance.Size = UDim2.new(relX,0,1,0)
             Knob.Instance.Position = UDim2.new(relX, -8, 0.5, -8)
-            Label.Instance.Text = Name .. " : " .. value
-            Callback(value)
-            return value
+            Label.Instance.Text = Name .. " : " .. val
+            Callback(val)
         end
 
-        Knob.Instance.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Knob.Instance.InputBegan:Connect(function(i)
+            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then Dragging = true end
+        end)
+        Track.Instance.InputBegan:Connect(function(i)
+            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                 Dragging = true
+                UpdateSlider(i.Position.X - Track.Instance.AbsolutePosition.X)
             end
         end)
-        Track.Instance.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                Dragging = true
-                UpdateSlider(input.Position.X - Track.Instance.AbsolutePosition.X)
-            end
-        end)
-        UserInputService.InputChanged:Connect(function(input)
+        UserInputService.InputChanged:Connect(function(i)
             if not Dragging then return end
-            if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
-            UpdateSlider(input.Position.X - Track.Instance.AbsolutePosition.X)
+            if i.UserInputType ~= Enum.UserInputType.MouseMovement and i.UserInputType ~= Enum.UserInputType.Touch then return end
+            UpdateSlider(i.Position.X - Track.Instance.AbsolutePosition.X)
         end)
-        UserInputService.InputEnded:Connect(function()
-            Dragging = false
-        end)
-
-        return function()
-            return tonumber(Label.Instance.Text:match("%d+$")) or Default
-        end
+        UserInputService.InputEnded:Connect(function() Dragging = false end)
     end
 
-    -- 📋 TAB LIST
-    local Tabs = {
-        {Name = "Search", Icon = "search"},
-        {Name = "Information", Icon = "info"},
-        {Name = "Fun", Icon = "star"},
-        {Name = "Main", Icon = "code-xml"},
-        {Name = "Auto", Icon = "refresh-cw"},
-        {Name = "Update Focused", Icon = "crosshair"},
-        {Name = "Day Farm", Icon = "sun"},
-        {Name = "Settings", Icon = "settings"},
-        {Name = "Credits", Icon = "user-check"},
-        {Name = "Debug", Icon = "bug"}
-    }
+    -- ✅ ONLY 1 TAB: MOVEMENTS
+    local MovementsTab = Base.new("TextButton", {
+        Size = UDim2.new(1, -12, 0, 36),
+        Position = UDim2.new(0, 6, 0, 6),
+        BackgroundColor3 = self.Theme.TabSelected,
+        BackgroundTransparency = 0.4,
+        Font = Enum.Font.GothamSemibold,
+        TextColor3 = self.Theme.TextColor,
+        Text = "Movements",
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = SidebarScroll.Instance
+    })
+    Instance.new("UICorner", MovementsTab.Instance).CornerRadius = UDim.new(0,6)
 
-    local TabButtons = {}
-    local CurrentTab = nil
-    local TweenInfo = TweenInfo.new(self.Theme.TweenTime, self.Theme.TweenStyle, self.Theme.TweenDirection)
-
-    -- Create each tab button
-    for i, tabData in ipairs(Tabs) do
-        local TabBtn = Base.new("TextButton", {
-            Size = UDim2.new(1, -12, 0, 36),
-            Position = UDim2.new(0, 6, 0, (i-1)*42),
-            BackgroundTransparency = 1,
-            AutoButtonColor = false,
-            Text = "",
-            Visible = true,
-            Parent = SidebarScroll.Instance
-        })
-        Instance.new("UICorner", TabBtn.Instance).CornerRadius = UDim.new(0, 6)
-
-        local TabIcon = Base.new("ImageLabel", {
-            Size = UDim2.new(0, 18, 0, 18),
-            Position = UDim2.new(0, 10, 0.5, -9),
-            BackgroundTransparency = 1,
-            ImageColor3 = self.Theme.TextColor,
-            ImageTransparency = 0.2,
-            Parent = TabBtn.Instance
-        })
-        if Lucide and Lucide["48px"][tabData.Icon] then
-            TabIcon.Instance.Image = "rbxassetid://" .. Lucide["48px"][tabData.Icon][1]
-            TabIcon.Instance.ImageRectSize = Vector2.new(unpack(Lucide["48px"][tabData.Icon][2]))
-            TabIcon.Instance.ImageRectOffset = Vector2.new(unpack(Lucide["48px"][tabData.Icon][3]))
-        end
-
-        Base.new("TextLabel", {
-            Text = tabData.Name,
-            Font = Enum.Font.GothamSemibold,
-            TextSize = 14,
-            TextColor3 = self.Theme.TextColor,
-            TextTransparency = 0.2,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, -40, 1, 0),
-            Position = UDim2.new(0, 36, 0, 0),
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Parent = TabBtn.Instance
-        })
-
-        -- Tab Click Event
-        TabBtn.Instance.Activated:Connect(function()
-            for _, btn in ipairs(TabButtons) do
-                TweenService:Create(btn.Button, TweenInfo, {
-                    BackgroundTransparency = 1,
-                    BackgroundColor3 = self.Theme.SidebarBg
-                }):Play()
-            end
-
-            TweenService:Create(TabBtn.Instance, TweenInfo, {
-                BackgroundTransparency = 0.6,
-                BackgroundColor3 = self.Theme.TabSelected
-            }):Play()
-
-            CurrentTab = tabData.Name
-            ContentScroll.Instance:ClearAllChildren()
-            ContentScroll.Instance:SetAttribute("SliderOffset", 10)
-            ContentScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, 0)
-
-            -- ✅ Content for Main tab with working sliders
-            if CurrentTab == "Main" then
-                Base.new("TextLabel", {
-                    Text = "Adjust Your Settings",
-                    Font = Enum.Font.GothamBold,
-                    TextSize = 18,
-                    TextColor3 = self.Theme.TextColor,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -20, 0, 30),
-                    Position = UDim2.new(0, 10, 0, 10),
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = ContentScroll.Instance
-                })
-
-                -- Slider 1
-                Window:AddSlider(ContentScroll.Instance, {
-                    Name = "Speed",
-                    Min = 1,
-                    Max = 100,
-                    Default = 50,
-                    Step = 1,
-                    Callback = function(val)
-                        print("Speed =", val)
-                    end
-                })
-
-                -- Slider 2
-                Window:AddSlider(ContentScroll.Instance, {
-                    Name = "Jump Power",
-                    Min = 0,
-                    Max = 200,
-                    Default = 50,
-                    Step = 5,
-                    Callback = function(val)
-                        print("Jump =", val)
-                    end
-                })
-
-                -- Slider 3
-                Window:AddSlider(ContentScroll.Instance, {
-                    Name = "Walk Speed",
-                    Min = 16,
-                    Max = 100,
-                    Default = 16,
-                    Step = 2,
-                    Callback = function(val)
-                        print("Walk =", val)
-                    end
-                })
-            else
-                Base.new("TextLabel", {
-                    Text = "Content: " .. CurrentTab,
-                    Font = Enum.Font.GothamBold,
-                    TextSize = 18,
-                    TextColor3 = self.Theme.TextColor,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, -20, 0, 30),
-                    Position = UDim2.new(0, 10, 0, 10),
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = ContentScroll.Instance
-                })
-            end
-        end)
-
-        table.insert(TabButtons, {Button = TabBtn.Instance, Name = tabData.Name})
-    end
-
-    SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, #Tabs * 42)
-
-    -- Search Function
-    SearchInput.Instance:GetPropertyChangedSignal("Text"):Connect(function()
-        local searchText = SearchInput.Instance.Text:lower()
-        local offset = 0
-        local visibleCount = 0
-
-        for _, tab in ipairs(TabButtons) do
-            if tab.Name:lower():find(searchText) then
-                tab.Button.Visible = true
-                tab.Button.Position = UDim2.new(0, 6, 0, offset)
-                offset = offset + 42
-                visibleCount = visibleCount + 1
-            else
-                tab.Button.Visible = false
-            end
-        end
-
-        SidebarScroll.Instance.CanvasSize = UDim2.new(0, 0, 0, visibleCount * 42)
-    end)
-
-    -- Select first tab by default
-    if #TabButtons > 0 then
-        TabButtons[1].Button.BackgroundTransparency = 0.6
-        TabButtons[1].Button.BackgroundColor3 = self.Theme.TabSelected
-    end
-
-    -- Minimize / Maximize / Close
-    local IsMinimized = false
-    local IsMaximized = false
-    local SavedSize, SavedPos
-
-    MinimizeBtn.Instance.Activated:Connect(function()
-        if not IsMinimized then
-            SavedSize = Window.Instance.Size
-            SavedPos = Window.Instance.Position
-            TweenService:Create(Window.Instance, TweenInfo, {
-                Size = self.Theme.MinimizedBarSize,
-                Position = self.Theme.MinimizedBarPos,
-                BackgroundTransparency = self.Theme.MinimizedTransparency
-            }):Play()
-            task.wait(self.Theme.TweenTime / 2)
-            MainContainer.Instance.Visible = false
-            MinimizeBtn.Instance.Visible = false
-            CloseBtn.Instance.Visible = false
-            MaximizeBtn.Instance.Position = UDim2.new(1, -32, 0, 0)
-            IsMinimized = true
-        end
-    end)
-
-    MaximizeBtn.Instance.Activated:Connect(function()
-        if IsMinimized then
-            MainContainer.Instance.Visible = true
-            MinimizeBtn.Instance.Visible = true
-            CloseBtn.Instance.Visible = true
-            MaximizeBtn.Instance.Position = UDim2.new(0, 32, 0, 0)
-            TweenService:Create(Window.Instance, TweenInfo, {
-                Size = SavedSize or self.Theme.NormalWindowSize,
-                Position = SavedPos or self.Theme.NormalWindowPos,
-                BackgroundTransparency = self.Theme.NormalTransparency
-            }):Play()
-            IsMinimized = false
-        else
-            if not IsMaximized then
-                SavedSize = Window.Instance.Size
-                SavedPos = Window.Instance.Position
-                TweenService:Create(Window.Instance, TweenInfo, {
-                    Size = UDim2.new(0.92, 0, 0.88, 0),
-                    Position = UDim2.new(0.04, 0, 0, 0)
-                }):Play()
-                IsMaximized = true
-            else
-                TweenService:Create(Window.Instance, TweenInfo, {
-                    Size = SavedSize or self.Theme.NormalWindowSize,
-                    Position = SavedPos or self.Theme.NormalWindowPos
-                }):Play()
-                IsMaximized = false
-            end
-        end
-    end)
-
-    CloseBtn.Instance.Activated:Connect(function()
-        Window.Instance:Destroy()
-    end)
-
-    -- Drag Logic
-    local Dragging = false
-    local StartPos, StartInputPos
-
-    DragArea.Instance.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local mousePos = Vector2.new(input.Position.X, input.Position.Y)
-            local cPos = Controls.Instance.AbsolutePosition
-            local cSize = Controls.Instance.AbsoluteSize
-
-            local overControls =
-                mousePos.X >= cPos.X and mousePos.X <= cPos.X + cSize.X and
-                mousePos.Y >= cPos.Y and mousePos.Y <= cPos.Y + cSize.Y
-
-            if not overControls then
-                Dragging = true
-                StartPos = Window.Instance.Position
-                StartInputPos = Vector2.new(input.Position.X, input.Position.Y)
-
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        Dragging = false
-                    end
-                end)
-            end
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if not Dragging then return end
-        if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
-        local Delta = Vector2.new(input.Position.X, input.Position.Y) - StartInputPos
-        Window.Instance.Position = UDim2.new(
-            StartPos.X.Scale, StartPos.X.Offset + Delta.X,
-            StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y
-        )
-    end)
-
-    -- Resize Logic
-    local ResizeGrip = Base.new("Frame", {
-        Size = UDim2.new(0, 30, 0, 30),
-        Position = UDim2.new(1, 0, 1, 0),
-        AnchorPoint = Vector2.new(1, 1),
+    Base.new("ImageLabel", {
+        Size = UDim2.new(0,18,0,18),
+        Position = UDim2.new(0,8,0.5,-9),
         BackgroundTransparency = 1,
-        ZIndex = 11,
-        Parent = Window.Instance
+        ImageColor3 = self.Theme.TextColor,
+        Parent = MovementsTab.Instance
     })
 
-    local Resizing = false
-    ResizeGrip.Instance.InputBegan:Connect(function(input)
-        if IsMinimized then return end
-        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Resizing = true
-            StartPos = Window.Instance.Size
-            StartInputPos = Vector2.new(input.Position.X, input.Position.Y)
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    Resizing = false
-                end
-            end)
+    Base.new("TextLabel", {
+        Text = "Movements",
+        Font = Enum.Font.GothamSemibold,
+        TextSize = 14,
+        TextColor3 = self.Theme.TextColor,
+        Position = UDim2.new(0,32,0,0),
+        Size = UDim2.new(1,-36,1,0),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = MovementsTab.Instance
+    })
+
+    -- ✅ CONTENT NG MOVEMENTS TAB (MGA SLIDERS)
+    ContentScroll.Instance:ClearAllChildren()
+    ContentScroll.Instance:SetAttribute("SliderOffset", 10)
+    ContentScroll.Instance.CanvasSize = UDim2.new(0,0,0,0)
+
+    Base.new("TextLabel", {
+        Text = "Movement Settings",
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        TextColor3 = self.Theme.TextColor,
+        Size = UDim2.new(1,-20,0,30),
+        Position = UDim2.new(0,10,0,10),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = ContentScroll.Instance
+    })
+
+    -- MGA SLIDERS
+    Window:AddSlider({
+        Name = "Walk Speed",
+        Min = 16,
+        Max = 250,
+        Default = 16,
+        Step = 2,
+        Callback = function(val)
+            print("Walk Speed =", val)
+            -- pwedeng ilagay dito ang code para baguhin ang bilis
+            -- LocalPlayer.Character.Humanoid.WalkSpeed = val
+        end
+    })
+
+    Window:AddSlider({
+        Name = "Jump Power",
+        Min = 0,
+        Max = 300,
+        Default = 50,
+        Step = 5,
+        Callback = function(val)
+            print("Jump Power =", val)
+            -- LocalPlayer.Character.Humanoid.JumpPower = val
+        end
+    })
+
+    Window:AddSlider({
+        Name = "Gravity",
+        Min = 0,
+        Max = 200,
+        Default = 100,
+        Step = 10,
+        Callback = function(val)
+            print("Gravity =", val)
+        end
+    })
+
+    -- Drag function
+    local DragStart, StartPos
+    DragArea.Instance.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            DragStart = Vector2.new(i.Position.X, i.Position.Y)
+            StartPos = Window.Instance.Position
         end
     end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if not Resizing or IsMinimized then return end
-        if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
-        local Delta = Vector2.new(input.Position.X, input.Position.Y) - StartInputPos
-        local NewWidth = math.max(self.Theme.MinWindowWidth, StartPos.X.Offset + Delta.X)
-        local NewHeight = math.max(self.Theme.MinWindowHeight, StartPos.Y.Offset + Delta.Y)
-        Window.Instance.Size = UDim2.new(0, NewWidth, 0, NewHeight)
+    UserInputService.InputChanged:Connect(function(i)
+        if not DragStart then return end
+        if i.UserInputType ~= Enum.UserInputType.MouseMovement and i.UserInputType ~= Enum.UserInputType.Touch then return end
+        local delta = Vector2.new(i.Position.X, i.Position.Y) - DragStart
+        Window.Instance.Position = UDim2.new(StartPos.X.Scale, StartPos.X.Offset + delta.X, StartPos.Y.Scale, StartPos.Y.Offset + delta.Y)
     end)
+    UserInputService.InputEnded:Connect(function() DragStart = nil end)
 
-    Window.ContentArea = ContentScroll.Instance
+    -- Close button
+    CloseBtn.Instance.Activated:Connect(function() Window.Instance:Destroy() end)
+
     return Window
 end
 
--- 🚀 RUN THE UI
+-- 🚀 PAGPAPATULOY NG UI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "VoidwareUI"
 ScreenGui.ResetOnSpawn = false
