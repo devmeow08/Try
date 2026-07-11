@@ -1,7 +1,5 @@
---// VOIDWARE UI - FULL VERSION
---// Optimized for Android / Touch Screen
---// Features: Search, Scroll, Drag, Resize, Permanent Tab Highlight
---// Fixed: Slider no longer drags window, Dropdown opens properly
+--// VOIDWARE UI - FINAL VERSION
+--// Fixed: Fixed Size, No Resize, Dropdown Inside Window
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -40,6 +38,7 @@ MyUILib.Theme = {
     HeaderSubtitleTransparency = 0.35,
     HeaderIconSize = 25,
     CornerRadius = UDim.new(0, 10),
+    -- ✅ LOCKED DEFAULT SIZE
     NormalWindowSize = UDim2.new(0, 450, 0, 530),
     NormalWindowPos = UDim2.new(0.5, -225, 0.5, -265),
     MinimizedBarSize = UDim2.new(0, 200, 0, 33),
@@ -47,8 +46,7 @@ MyUILib.Theme = {
     HeaderHeight = 36,
     SidebarWidth = 160,
     UserProfileHeight = 60,
-    MinWindowWidth = 420,
-    MinWindowHeight = 280,
+    -- ❌ REMOVED RESIZE LIMITS
     TweenTime = 0.22,
     TweenStyle = Enum.EasingStyle.Quad,
     TweenDirection = Enum.EasingDirection.Out,
@@ -88,7 +86,7 @@ function MyUILib:CreateWindow()
         BackgroundTransparency = self.Theme.NormalTransparency,
         Size = self.Theme.NormalWindowSize,
         Position = self.Theme.NormalWindowPos,
-        ClipsDescendants = false, -- Changed to false so dropdown can show outside
+        ClipsDescendants = true, -- ✅ Ipinakita: Haharangin ang lalabas na bahagi
         ZIndex = 10
     })
 
@@ -231,7 +229,7 @@ function MyUILib:CreateWindow()
         Size = UDim2.new(1, 0, 1, -self.Theme.HeaderHeight),
         Position = UDim2.new(0, 0, 0, self.Theme.HeaderHeight),
         BackgroundTransparency = 1,
-        ClipsDescendants = false,
+        ClipsDescendants = true, -- ✅ Lahat nasa loob lang
         Parent = Window.Instance
     })
 
@@ -367,6 +365,7 @@ function MyUILib:CreateWindow()
         BackgroundColor3 = self.Theme.ContentBg,
         BackgroundTransparency = 0.1,
         BorderSizePixel = 0,
+        ClipsDescendants = true, -- ✅ Pilitin nasa loob lang
         Parent = MainContainer.Instance
     })
     Instance.new("UICorner", ContentScroll.Instance).CornerRadius = self.Theme.CornerRadius
@@ -399,7 +398,7 @@ function MyUILib:CreateWindow()
             Font = Enum.Font.GothamSemibold,
             TextSize = 14,
             TextColor3 = self.Theme.TextColor,
-            Size = UDim2.new(0, 180, 0, 30),
+            Size = UDim2.new(0, 140, 0, 30),
             Position = UDim2.new(0, 15, 0, 25),
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Left,
@@ -412,15 +411,15 @@ function MyUILib:CreateWindow()
             TextSize = 14,
             TextColor3 = self.Theme.TextColor,
             Size = UDim2.new(0, 35, 0, 30),
-            Position = UDim2.new(0, 200, 0, 25),
+            Position = UDim2.new(0, 160, 0, 25),
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Right,
             Parent = ContentScroll.Instance
         })
 
         local SliderTrack = Base.new("Frame", {
-            Size = UDim2.new(1, -240, 0, 2),
-            Position = UDim2.new(0, 240, 0, 39),
+            Size = UDim2.new(0, 180, 0, 2), -- ✅ Pinaikli para di umabot sa dulo
+            Position = UDim2.new(0, 200, 0, 39),
             BackgroundColor3 = self.Theme.SliderBase,
             Parent = ContentScroll.Instance
         })
@@ -448,7 +447,7 @@ function MyUILib:CreateWindow()
             Font = Enum.Font.GothamSemibold,
             TextSize = 14,
             TextColor3 = self.Theme.TextColor,
-            Size = UDim2.new(0, 180, 0, 30),
+            Size = UDim2.new(0, 140, 0, 30),
             Position = UDim2.new(0, 15, 0, 85),
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Left,
@@ -457,7 +456,7 @@ function MyUILib:CreateWindow()
 
         local ToggleSwitch = Base.new("Frame", {
             Size = UDim2.new(0, 44, 0, 24),
-            Position = UDim2.new(0, 280, 0, 88),
+            Position = UDim2.new(0, 200, 0, 88),
             BackgroundColor3 = self.Theme.ToggleOff,
             Parent = ContentScroll.Instance
         })
@@ -486,7 +485,7 @@ function MyUILib:CreateWindow()
             Font = Enum.Font.GothamSemibold,
             TextSize = 14,
             TextColor3 = self.Theme.TextColor,
-            Size = UDim2.new(0, 180, 0, 30),
+            Size = UDim2.new(0, 140, 0, 30),
             Position = UDim2.new(0, 15, 0, 145),
             BackgroundTransparency = 1,
             TextXAlignment = Enum.TextXAlignment.Left,
@@ -494,7 +493,7 @@ function MyUILib:CreateWindow()
         })
 
         local DropdownTrigger = Base.new("Frame", {
-            Size = UDim2.new(0, 160, 0, 32),
+            Size = UDim2.new(0, 140, 0, 32), -- ✅ Pinaikli para kasya
             Position = UDim2.new(0, 200, 0, 144),
             BackgroundColor3 = self.Theme.DropdownBoxBg,
             Parent = ContentScroll.Instance,
@@ -534,16 +533,16 @@ function MyUILib:CreateWindow()
             ZIndex = 4
         })
 
-        -- 🆕 SEPARATE DROPDOWN WINDOW (FIXED: parent = ScreenGui, higher ZIndex)
+        -- ✅ DROPDOWN WINDOW: NAKA-LOOB SA CONTENT PARA HINDI LUMABAS
         local DropdownWindow = Base.new("Frame", {
-            Size = UDim2.new(0, 160, 0, 0),
-            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(0, 140, 0, 0),
+            Position = UDim2.new(0, 0, 0, 34), -- ✅ Nasa ibaba mismo ng box
             BackgroundColor3 = self.Theme.DropdownWindowBg,
             Visible = false,
             ClipsDescendants = true,
             Active = true,
-            Parent = ScreenGui,
-            ZIndex = 100
+            Parent = DropdownTrigger.Instance, -- ✅ Magulang ay ang trigger, kaya di lalabas
+            ZIndex = 10
         })
         Instance.new("UICorner", DropdownWindow.Instance).CornerRadius = self.Theme.CornerRadius
 
@@ -566,10 +565,10 @@ function MyUILib:CreateWindow()
             local btn = Base.new("TextButton", {
                 Text = name,
                 Font = Enum.Font.GothamSemibold,
-                TextSize = 13,
+                TextSize = 12,
                 TextColor3 = self.Theme.TextColor,
-                Size = UDim2.new(1, -10, 0, 28),
-                Position = UDim2.new(0, 5, 0, (i - 1) * 30),
+                Size = UDim2.new(1, -10, 0, 26),
+                Position = UDim2.new(0, 5, 0, (i - 1) * 28),
                 BackgroundColor3 = self.Theme.DropdownWindowBg,
                 AutoButtonColor = false,
                 Parent = DropdownWindow.Instance
@@ -593,20 +592,17 @@ function MyUILib:CreateWindow()
         local function OpenDropdown()
             if isOpen then return end
             isOpen = true
-            -- Position exactly next to the trigger box
-            local triggerPos = DropdownTrigger.Instance.AbsolutePosition
-            DropdownWindow.Instance.Position = UDim2.new(0, triggerPos.X + DropdownTrigger.Instance.AbsoluteSize.X + 8, 0, triggerPos.Y - 2)
             DropdownWindow.Instance.Visible = true
             DropdownArrow.Instance.Text = "▲"
-            local targetHeight = #Options * 30 + 10
-            TweenService:Create(DropdownWindow.Instance, TweenInfo.new(0.25), {Size = UDim2.new(0, 160, 0, targetHeight)}):Play()
+            local targetHeight = #Options * 28 + 5
+            TweenService:Create(DropdownWindow.Instance, TweenInfo.new(0.25), {Size = UDim2.new(0, 140, 0, targetHeight)}):Play()
         end
 
         function CloseDropdown()
             if not isOpen then return end
             isOpen = false
             DropdownArrow.Instance.Text = "▼"
-            TweenService:Create(DropdownWindow.Instance, TweenInfo.new(0.2), {Size = UDim2.new(0, 160, 0, 0)}):Play()
+            TweenService:Create(DropdownWindow.Instance, TweenInfo.new(0.2), {Size = UDim2.new(0, 140, 0, 0)}):Play()
             task.wait(0.2)
             DropdownWindow.Instance.Visible = false
         end
@@ -615,7 +611,7 @@ function MyUILib:CreateWindow()
             if isOpen then CloseDropdown() else OpenDropdown() end
         end)
 
-        -- ✅ WALK SPEED LOGIC (FIXED: no longer drags window)
+        -- ✅ WALK SPEED LOGIC
         local Dragging = false
         local MinSpeed = 16
         local MaxSpeed = 300
@@ -685,18 +681,12 @@ function MyUILib:CreateWindow()
         UserInputService.InputBegan:Connect(function(input)
             if isOpen and input.UserInputType == Enum.UserInputType.MouseButton1 then
                 local mousePos = UserInputService:GetMouseLocation()
-                local insideTrigger = DropdownTrigger.Instance.AbsolutePosition.X <= mousePos.X and
+                local inside = DropdownTrigger.Instance.AbsolutePosition.X <= mousePos.X and
                     mousePos.X <= DropdownTrigger.Instance.AbsolutePosition.X + DropdownTrigger.Instance.AbsoluteSize.X and
                     DropdownTrigger.Instance.AbsolutePosition.Y <= mousePos.Y and
-                    mousePos.Y <= DropdownTrigger.Instance.AbsolutePosition.Y + DropdownTrigger.Instance.AbsoluteSize.Y
-
-                local insideDropdown = DropdownWindow.Instance.Visible and
-                    DropdownWindow.Instance.AbsolutePosition.X <= mousePos.X and
-                    mousePos.X <= DropdownWindow.Instance.AbsolutePosition.X + DropdownWindow.Instance.AbsoluteSize.X and
-                    DropdownWindow.Instance.AbsolutePosition.Y <= mousePos.Y and
                     mousePos.Y <= DropdownWindow.Instance.AbsolutePosition.Y + DropdownWindow.Instance.AbsoluteSize.Y
 
-                if not insideTrigger and not insideDropdown then
+                if not inside then
                     CloseDropdown()
                 end
             end
@@ -811,13 +801,9 @@ function MyUILib:CreateWindow()
 
     -- Minimize/Maximize/Close
     local IsMinimized = false
-    local IsMaximized = false
-    local SavedSize, SavedPos
 
     MinimizeBtn.Instance.Activated:Connect(function()
         if not IsMinimized then
-            SavedSize = Window.Instance.Size
-            SavedPos = Window.Instance.Position
             TweenService:Create(Window.Instance, TweenInfo, {
                 Size = self.Theme.MinimizedBarSize,
                 Position = self.Theme.MinimizedBarPos,
@@ -839,27 +825,11 @@ function MyUILib:CreateWindow()
             CloseBtn.Instance.Visible = true
             MaximizeBtn.Instance.Position = UDim2.new(0, 32, 0, 0)
             TweenService:Create(Window.Instance, TweenInfo, {
-                Size = SavedSize or self.Theme.NormalWindowSize,
-                Position = SavedPos or self.Theme.NormalWindowPos,
+                Size = self.Theme.NormalWindowSize,
+                Position = self.Theme.NormalWindowPos,
                 BackgroundTransparency = self.Theme.NormalTransparency
             }):Play()
             IsMinimized = false
-        else
-            if not IsMaximized then
-                SavedSize = Window.Instance.Size
-                SavedPos = Window.Instance.Position
-                TweenService:Create(Window.Instance, TweenInfo, {
-                    Size = UDim2.new(0.92, 0, 0.88, 0),
-                    Position = UDim2.new(0.04, 0, 0, 0)
-                }):Play()
-                IsMaximized = true
-            else
-                TweenService:Create(Window.Instance, TweenInfo, {
-                    Size = SavedSize or self.Theme.NormalWindowSize,
-                    Position = SavedPos or self.Theme.NormalWindowPos
-                }):Play()
-                IsMaximized = false
-            end
         end
     end)
 
@@ -867,7 +837,7 @@ function MyUILib:CreateWindow()
         Window.Instance:Destroy()
     end)
 
-    -- ✅ DRAG LOGIC (FIXED: only drags when clicking header, not controls)
+    -- ✅ DRAG LOGIC
     local Dragging = false
     local StartPos, StartInputPos
 
@@ -877,7 +847,6 @@ function MyUILib:CreateWindow()
             local cPos = Controls.Instance.AbsolutePosition
             local cSize = Controls.Instance.AbsoluteSize
 
-            -- Only drag if NOT clicking the buttons/controls
             local overControls =
                 mousePos.X >= cPos.X and mousePos.X <= cPos.X + cSize.X and
                 mousePos.Y >= cPos.Y and mousePos.Y <= cPos.Y + cSize.Y
@@ -898,7 +867,6 @@ function MyUILib:CreateWindow()
 
     UserInputService.InputChanged:Connect(function(input)
         if not Dragging then return end
-        -- Only drag if not interacting with sliders/toggles/dropdown
         if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
 
         local Delta = Vector2.new(input.Position.X, input.Position.Y) - StartInputPos
@@ -908,45 +876,7 @@ function MyUILib:CreateWindow()
         )
     end)
 
-    -- ✅ RESIZE LOGIC
-    local ResizeGrip = Base.new("Frame", {
-        Size = UDim2.new(0, 30, 0, 30),
-        Position = UDim2.new(1, 0, 1, 0),
-        AnchorPoint = Vector2.new(1, 1),
-        BackgroundTransparency = 1,
-        ZIndex = 11,
-        Parent = Window.Instance
-    })
-
-    local Resizing = false
-    local StartSize
-
-    ResizeGrip.Instance.InputBegan:Connect(function(input)
-        if IsMinimized then return end
-        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-            Resizing = true
-            StartSize = Vector2.new(Window.Instance.Size.X.Offset, Window.Instance.Size.Y.Offset)
-            StartInputPos = Vector2.new(input.Position.X, input.Position.Y)
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    Resizing = false
-                    self.Theme.NormalWindowSize = Window.Instance.Size
-                end
-            end)
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if not Resizing or IsMinimized then return end
-        if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
-
-        local Delta = Vector2.new(input.Position.X, input.Position.Y) - StartInputPos
-        local NewWidth = math.max(self.Theme.MinWindowWidth, StartSize.X + Delta.X)
-        local NewHeight = math.max(self.Theme.MinWindowHeight, StartSize.Y + Delta.Y)
-
-        Window.Instance.Size = UDim2.new(0, NewWidth, 0, NewHeight)
-    end)
+    -- ❌ TINANGGAL ANG RESIZE LOGIC - HINDI NA MAAYOS ANG LAKI
 
     Window.ContentArea = ContentScroll.Instance
     return Window
